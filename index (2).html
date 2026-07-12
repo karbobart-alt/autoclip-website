@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AutoClip — The AI Content Studio for creators</title>
+<meta name="description" content="AutoClip turns your long-form video into ready-to-post TikTok clips — AI clip selection, captions, titles, and hashtags, automatically." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #090c12;
+    --bg-alt: #0d1119;
+    --panel: #10141f;
+    --panel-2: #151a27;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --blue: #3d8bfd;
+    --blue-bright: #6ea8ff;
+    --blue-dim: #1c3357;
+    --cyan: #22d3ee;
+    --pink: #ff5da2;
+    --text: #e8ebf3;
+    --text-muted: #929ab3;
+    --text-dim: #5c6480;
+    --radius: 12px;
+    --radius-lg: 20px;
+    --maxw: 1120px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  h1,h2,h3,h4{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  p{margin:0;}
+  a{color:inherit;text-decoration:none;}
+  .mono{font-family:'JetBrains Mono', monospace;}
+  ::selection{background:var(--blue-dim); color:var(--blue-bright);}
+
+  :focus-visible{
+    outline: 2px solid var(--blue-bright);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .wrap{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:0 28px;
+  }
+
+  /* ---------- Background texture ---------- */
+  body{
+    background-image:
+      radial-gradient(ellipse 900px 500px at 15% -5%, rgba(61,139,253,0.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(34,211,238,0.07), transparent 55%);
+    background-repeat:no-repeat;
+  }
+
+  /* ---------- Nav ---------- */
+  header.site-nav{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(9,12,18,0.82);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav-inner{
+    max-width:var(--maxw);
+    margin:0 auto;
+    padding:16px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:16px;
+    color:var(--text);
+  }
+  .brand-mark{
+    width:30px;height:30px;
+    border-radius:8px;
+    background:linear-gradient(145deg, var(--blue), #1f5fd6);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 4px 14px rgba(61,139,253,0.35);
+    flex-shrink:0;
+  }
+  .brand-mark svg{width:16px;height:16px;}
+
+  nav.nav-links{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  nav.nav-links a{
+    font-size:14px;
+    font-weight:500;
+    color:var(--text-muted);
+    padding:8px 14px;
+    border-radius:8px;
+    transition:color .15s ease, background .15s ease;
+  }
+  nav.nav-links a:hover{color:var(--text); background:rgba(255,255,255,0.04);}
+  nav.nav-links a.active{color:var(--blue-bright); background:rgba(61,139,253,0.1);}
+
+  .nav-right{display:flex; align-items:center; gap:10px;}
+
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    justify-content:center;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:10px 18px;
+    border-radius:9px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+    white-space:nowrap;
+  }
+  .btn-primary{
+    background:linear-gradient(180deg, var(--blue-bright), var(--blue));
+    color:#06101f;
+    box-shadow:0 6px 20px rgba(61,139,253,0.28);
+  }
+  .btn-primary:hover{transform:translateY(-1px); box-shadow:0 8px 24px rgba(61,139,253,0.4);}
+  .btn-ghost{
+    background:transparent;
+    color:var(--text);
+    border-color:var(--border-strong);
+  }
+  .btn-ghost:hover{background:rgba(255,255,255,0.05); border-color:var(--text-dim);}
+  .btn-sm{padding:8px 14px; font-size:13px;}
+
+  .hamburger{
+    display:none;
+    width:36px;height:36px;
+    border-radius:8px;
+    border:1px solid var(--border-strong);
+    background:transparent;
+    color:var(--text);
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+  .mobile-panel{
+    display:none;
+    flex-direction:column;
+    gap:4px;
+    padding:12px 28px 18px;
+    border-bottom:1px solid var(--border);
+    background:var(--bg-alt);
+  }
+  .mobile-panel a{
+    padding:12px 8px;
+    font-size:15px;
+    color:var(--text-muted);
+    border-radius:8px;
+  }
+  .mobile-panel a.active{color:var(--blue-bright);}
+  .mobile-panel.open{display:flex;}
+
+  /* ---------- Page sections ---------- */
+  .page{display:none;}
+  .page.active{display:block; animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  /* ---------- Badges ---------- */
+  .badge-soon{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    color:var(--cyan);
+    background:rgba(34,211,238,0.1);
+    border:1px solid rgba(34,211,238,0.3);
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge-live{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    color:var(--blue-bright);
+    background:rgba(61,139,253,0.1);
+    border:1px solid rgba(61,139,253,0.3);
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding:96px 0 64px;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:56px;
+    align-items:center;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--blue-bright);
+    background:rgba(61,139,253,0.08);
+    border:1px solid rgba(61,139,253,0.25);
+    padding:6px 12px;
+    border-radius:999px;
+    margin-bottom:22px;
+  }
+  .eyebrow .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--cyan);
+    box-shadow:0 0 8px var(--cyan);
+    animation:pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.35;}}
+
+  .hero h1{
+    font-size:clamp(34px, 5.2vw, 56px);
+    line-height:1.06;
+    max-width:16ch;
+  }
+  .hero h1 span{color:var(--blue-bright);}
+  .hero p.lede{
+    margin-top:22px;
+    font-size:17px;
+    color:var(--text-muted);
+    max-width:48ch;
+    line-height:1.65;
+  }
+  .hero-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-top:32px;
+  }
+  .hero-meta{
+    margin-top:28px;
+    display:flex;
+    gap:22px;
+    flex-wrap:wrap;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .hero-meta span{display:flex; align-items:center; gap:7px;}
+  .hero-meta svg{width:14px;height:14px; color:var(--blue-bright);}
+
+  /* ---------- App window shell ---------- */
+  .app-window{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  }
+  .app-titlebar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:12px 16px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--border);
+  }
+  .tb-dot{width:9px;height:9px;border-radius:50%;background:#3a4054;}
+  .tb-title{
+    margin-left:8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .tb-right{margin-left:auto;}
+  .app-body{padding:22px;}
+
+  /* ---------- Source timeline (hero signature) ---------- */
+  .timeline-label{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:9px;
+  }
+  .timeline-track{
+    position:relative;
+    height:34px;
+    border-radius:8px;
+    background:#05070c;
+    border:1px solid var(--border);
+    margin-bottom:26px;
+    overflow:visible;
+  }
+  .timeline-track::before{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 18px);
+    border-radius:8px;
+  }
+  .timeline-marker{
+    position:absolute;
+    top:4px;
+    bottom:4px;
+    width:34px;
+    border-radius:5px;
+    background:linear-gradient(180deg, rgba(61,139,253,0.55), rgba(61,139,253,0.28));
+    border:1px solid rgba(110,168,255,0.6);
+    box-shadow:0 0 14px rgba(61,139,253,0.35);
+    animation:markerGlow 3s ease-in-out infinite;
+  }
+  .timeline-marker.alt{animation-delay:1s;}
+  @keyframes markerGlow{
+    0%,100%{box-shadow:0 0 10px rgba(61,139,253,0.25);}
+    50%{box-shadow:0 0 20px rgba(61,139,253,0.5);}
+  }
+  .marker-score{
+    position:absolute;
+    top:-24px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--cyan);
+    background:#05070c;
+    border:1px solid rgba(34,211,238,0.35);
+    padding:2px 6px;
+    border-radius:5px;
+    white-space:nowrap;
+  }
+
+  /* ---------- Clip output grid (hero signature) ---------- */
+  .clip-output-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:14px;
+  }
+  .clip-card{
+    position:relative;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid var(--border);
+    background:var(--panel-2);
+    aspect-ratio:9/13;
+    opacity:0;
+    animation:clipIn .6s ease forwards;
+  }
+  .clip-card:nth-child(1){animation-delay:.1s;}
+  .clip-card:nth-child(2){animation-delay:.28s;}
+  .clip-card:nth-child(3){animation-delay:.46s;}
+  @keyframes clipIn{
+    from{opacity:0; transform:translateY(10px) scale(.98);}
+    to{opacity:1; transform:translateY(0) scale(1);}
+  }
+  .clip-thumb{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(160deg, rgba(61,139,253,0.35), rgba(34,211,238,0.12) 55%, #090c12 100%);
+  }
+  .clip-thumb::after{
+    content:'';
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(115deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 22px);
+  }
+  .clip-play{
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    width:34px;height:34px;
+    border-radius:50%;
+    background:rgba(6,10,17,0.6);
+    border:1px solid rgba(255,255,255,0.25);
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(3px);
+  }
+  .clip-play svg{width:12px;height:12px; margin-left:1px;}
+  .clip-score{
+    position:absolute;
+    top:9px; right:9px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--cyan);
+    background:rgba(6,10,17,0.75);
+    border:1px solid rgba(34,211,238,0.35);
+    padding:3px 7px;
+    border-radius:999px;
+    z-index:2;
+  }
+  .clip-info{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    padding:10px;
+    background:linear-gradient(0deg, rgba(6,10,17,0.92), rgba(6,10,17,0.1));
+    z-index:2;
+  }
+  .clip-title{
+    font-size:11.5px;
+    color:var(--text);
+    line-height:1.35;
+    margin-bottom:7px;
+  }
+  .clip-tags{display:flex; flex-wrap:wrap; gap:4px;}
+  .clip-tags span{
+    font-family:'JetBrains Mono', monospace;
+    font-size:9.5px;
+    color:var(--blue-bright);
+    background:rgba(61,139,253,0.14);
+    padding:2px 6px;
+    border-radius:999px;
+  }
+
+  /* ---------- Section shell ---------- */
+  section.block{padding:76px 0;}
+  section.block.tight{padding:56px 0;}
+  .section-head{
+    max-width:640px;
+    margin-bottom:44px;
+  }
+  .section-head .kicker{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--blue-bright);
+    display:block;
+    margin-bottom:12px;
+  }
+  .section-head h2{
+    font-size:clamp(26px, 3.4vw, 36px);
+    line-height:1.15;
+  }
+  .section-head p{
+    margin-top:14px;
+    color:var(--text-muted);
+    font-size:15.5px;
+    line-height:1.65;
+  }
+
+  /* ---------- Feature grid ---------- */
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:1px;
+    background:var(--border);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    overflow:hidden;
+  }
+  .feature-card{
+    background:var(--panel);
+    padding:28px 26px;
+    transition:background .2s ease;
+  }
+  .feature-card:hover{background:var(--panel-2);}
+  .feature-card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .feature-icon{
+    width:38px;height:38px;
+    border-radius:9px;
+    background:rgba(61,139,253,0.12);
+    border:1px solid rgba(61,139,253,0.24);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--blue-bright);
+    flex-shrink:0;
+  }
+  .feature-icon svg{width:18px;height:18px;}
+  .feature-card h3{font-size:16px; margin-bottom:8px;}
+  .feature-card p{font-size:14px; color:var(--text-muted); line-height:1.6;}
+
+  /* ---------- Steps ---------- */
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(3, 1fr);
+    gap:24px;
+  }
+  .step{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:26px;
+    position:relative;
+  }
+  .step .num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--blue-bright);
+    background:rgba(61,139,253,0.1);
+    border:1px solid rgba(61,139,253,0.25);
+    padding:3px 9px;
+    border-radius:999px;
+    display:inline-block;
+    margin-bottom:16px;
+  }
+  .step h3{font-size:17px; margin-bottom:8px;}
+  .step p{font-size:14px; color:var(--text-muted); line-height:1.6;}
+
+  /* ---------- Preview / mockup panel section ---------- */
+  .preview-panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:8px;
+  }
+  .preview-panel .app-window{border-radius:14px;}
+
+  .caption-chip{
+    position:relative;
+    margin-bottom:18px;
+    background:rgba(6,10,17,0.9);
+    border:1px solid rgba(61,139,253,0.4);
+    color:var(--blue-bright);
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    padding:7px 14px;
+    border-radius:7px;
+    opacity:0;
+    animation:chipIn 6s ease-in-out infinite;
+  }
+  .caption-chip.c2{animation-delay:1.5s;}
+  @keyframes chipIn{
+    0%{opacity:0; transform:translateY(6px);}
+    8%{opacity:1; transform:translateY(0);}
+    30%{opacity:1;}
+    38%{opacity:0;}
+    100%{opacity:0;}
+  }
+
+  .video-frame{
+    background:#05070c;
+    border:1px solid var(--border);
+    border-radius:10px;
+    aspect-ratio:16/8;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    margin-bottom:20px;
+  }
+  .video-frame::before{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      linear-gradient(120deg, rgba(61,139,253,0.14), transparent 55%),
+      repeating-linear-gradient(115deg, rgba(255,255,255,0.02) 0 2px, transparent 2px 24px);
+  }
+
+  .timecode-row{
+    display:flex;
+    justify-content:space-between;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--text-dim);
+    margin-bottom:8px;
+  }
+  .waveform{
+    display:flex;
+    align-items:flex-end;
+    gap:3px;
+    height:56px;
+    padding:0 2px;
+    margin-bottom:18px;
+  }
+  .waveform i{
+    display:block;
+    flex:1;
+    min-width:2px;
+    border-radius:2px;
+    background:linear-gradient(180deg, var(--blue), var(--blue-dim));
+    animation:bar 2.4s ease-in-out infinite;
+  }
+  @keyframes bar{
+    0%,100%{transform:scaleY(var(--h1, 0.4));}
+    50%{transform:scaleY(var(--h2, 0.9));}
+  }
+
+  .transcript-track{
+    border-top:1px solid var(--border);
+    padding-top:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .transcript-line{
+    display:flex;
+    gap:12px;
+    align-items:baseline;
+    font-size:13px;
+  }
+  .transcript-line .tc{
+    font-family:'JetBrains Mono', monospace;
+    color:var(--text-dim);
+    font-size:11px;
+    flex-shrink:0;
+    width:64px;
+  }
+  .transcript-line .word{color:var(--text-muted);}
+  .transcript-line.current .word{color:var(--text);}
+  .transcript-line .word.hl{
+    color:var(--cyan);
+    background:rgba(34,211,238,0.12);
+    padding:1px 4px;
+    border-radius:4px;
+  }
+  .transcript-line .score-tag{
+    margin-left:auto;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10px;
+    color:var(--cyan);
+    flex-shrink:0;
+  }
+
+  /* ---------- Roadmap (available now / coming soon) ---------- */
+  .roadmap-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:24px;
+  }
+  .roadmap-card{
+    border-radius:var(--radius-lg);
+    padding:30px;
+    border:1px solid var(--border);
+  }
+  .roadmap-card.now{background:var(--panel);}
+  .roadmap-card.soon{
+    background:linear-gradient(160deg, rgba(34,211,238,0.06), rgba(61,139,253,0.03));
+    border-color:rgba(34,211,238,0.2);
+  }
+  .roadmap-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;}
+  .roadmap-head h3{font-size:17px;}
+  .roadmap-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .roadmap-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    font-size:14px;
+    color:var(--text-muted);
+    line-height:1.55;
+  }
+  .roadmap-list .tick{
+    width:18px;height:18px;
+    border-radius:50%;
+    flex-shrink:0;
+    margin-top:1px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .roadmap-list.now .tick{background:rgba(61,139,253,0.15); color:var(--blue-bright);}
+  .roadmap-list.soon .tick{background:rgba(34,211,238,0.12); color:var(--cyan);}
+  .roadmap-list .tick svg{width:10px;height:10px;}
+  .roadmap-list li strong{color:var(--text); font-weight:600;}
+
+  /* ---------- CTA banner ---------- */
+  .cta-banner{
+    background:linear-gradient(135deg, rgba(61,139,253,0.14), rgba(34,211,238,0.05));
+    border:1px solid rgba(61,139,253,0.25);
+    border-radius:var(--radius-lg);
+    padding:52px 44px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:32px;
+    flex-wrap:wrap;
+  }
+  .cta-banner h2{font-size:clamp(22px, 3vw, 30px); max-width:22ch;}
+  .cta-banner p{color:var(--text-muted); margin-top:10px; font-size:14.5px;}
+
+  /* ---------- Social proof strip ---------- */
+  .proof-strip{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    justify-content:space-between;
+    padding:22px 26px;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--panel);
+  }
+  .proof-item{display:flex; flex-direction:column; gap:4px;}
+  .proof-item .num{
+    font-family:'Space Grotesk', sans-serif;
+    font-size:26px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .proof-item .num span{color:var(--blue-bright);}
+  .proof-item .lbl{font-size:12.5px; color:var(--text-dim);}
+
+  /* ---------- Footer ---------- */
+  footer{
+    border-top:1px solid var(--border);
+    padding:48px 0 32px;
+    margin-top:40px;
+  }
+  .footer-grid{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap:32px;
+  }
+  .footer-brand p{
+    color:var(--text-dim);
+    font-size:13.5px;
+    margin-top:10px;
+    max-width:32ch;
+  }
+  .footer-links{
+    display:flex;
+    gap:48px;
+    flex-wrap:wrap;
+  }
+  .footer-col h4{
+    font-size:12px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin-bottom:14px;
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+  }
+  .footer-col a{
+    display:block;
+    font-size:14px;
+    color:var(--text-muted);
+    padding:5px 0;
+  }
+  .footer-col a:hover{color:var(--blue-bright);}
+  .footer-bottom{
+    margin-top:40px;
+    padding-top:24px;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+
+  /* ---------- Legal / static page content ---------- */
+  .legal-page{padding:64px 0 90px;}
+  .legal-header{margin-bottom:40px; max-width:680px;}
+  .legal-header .kicker{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--blue-bright);
+    letter-spacing:0.08em;
+  }
+  .legal-header h1{font-size:clamp(28px, 4vw, 40px); margin-top:12px;}
+  .legal-header .updated{color:var(--text-dim); font-size:13px; margin-top:14px; font-family:'JetBrains Mono', monospace;}
+  .legal-body{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:48px;
+    align-items:flex-start;
+  }
+  .legal-toc{
+    position:sticky;
+    top:96px;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    border-left:1px solid var(--border);
+    padding-left:16px;
+  }
+  .legal-toc a{
+    font-size:13px;
+    color:var(--text-dim);
+    padding:7px 0;
+  }
+  .legal-toc a:hover{color:var(--text-muted);}
+  .legal-content{max-width:680px;}
+  .legal-content h2{
+    font-size:19px;
+    margin-top:38px;
+    margin-bottom:12px;
+    scroll-margin-top:96px;
+  }
+  .legal-content h2:first-child{margin-top:0;}
+  .legal-content p{
+    color:var(--text-muted);
+    font-size:15px;
+    line-height:1.75;
+    margin-bottom:14px;
+  }
+  .legal-content ul{
+    margin:0 0 14px;
+    padding-left:20px;
+    color:var(--text-muted);
+    font-size:15px;
+    line-height:1.75;
+  }
+  .legal-content li{margin-bottom:6px;}
+  .legal-content strong{color:var(--text);}
+  .legal-content a.inline-link{color:var(--blue-bright); border-bottom:1px solid rgba(110,168,255,0.3);}
+
+  /* ---------- Contact page ---------- */
+  .contact-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:48px;
+    align-items:flex-start;
+  }
+  .contact-info-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:32px;
+  }
+  .contact-info-card h3{font-size:16px; margin-bottom:6px;}
+  .contact-info-card p{color:var(--text-muted); font-size:14px; line-height:1.65;}
+  .contact-row{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    padding:16px 0;
+    border-top:1px solid var(--border);
+  }
+  .contact-row:first-of-type{border-top:none; padding-top:0;}
+  .contact-row .icon{
+    width:34px;height:34px;
+    border-radius:8px;
+    background:rgba(61,139,253,0.1);
+    border:1px solid rgba(61,139,253,0.25);
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+    color:var(--blue-bright);
+  }
+  .contact-row .icon svg{width:16px;height:16px;}
+  .contact-row h4{font-size:14px; margin-bottom:3px;}
+  .contact-row p{font-size:13.5px; color:var(--text-dim);}
+  .contact-row a{color:var(--text-muted);}
+  .contact-row a:hover{color:var(--blue-bright);}
+
+  form#contact-form{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:32px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .field{display:flex; flex-direction:column; gap:7px;}
+  .field label{font-size:13px; font-weight:500; color:var(--text-muted);}
+  .field input, .field select, .field textarea{
+    background:var(--bg-alt);
+    border:1px solid var(--border-strong);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    font-size:14px;
+    padding:11px 13px;
+    border-radius:8px;
+    resize:vertical;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:none;
+    border-color:var(--blue);
+    box-shadow:0 0 0 3px rgba(61,139,253,0.15);
+  }
+  .field-row{display:flex; gap:14px;}
+  .field-row .field{flex:1;}
+  .form-note{font-size:12.5px; color:var(--text-dim); line-height:1.6;}
+  #form-status{
+    font-size:13.5px;
+    padding:10px 13px;
+    border-radius:8px;
+    display:none;
+  }
+  #form-status.show{display:block;}
+  #form-status.ok{background:rgba(34,211,238,0.08); border:1px solid rgba(34,211,238,0.3); color:var(--cyan);}
+  #form-status.err{background:rgba(253,90,61,0.08); border:1px solid rgba(253,90,61,0.3); color:#ff8a70;}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px){
+    .hero-grid{grid-template-columns:1fr;}
+    .feature-grid{grid-template-columns:repeat(2, 1fr);}
+    .steps{grid-template-columns:1fr;}
+    .legal-body{grid-template-columns:1fr;}
+    .legal-toc{position:static; border-left:none; padding-left:0; flex-direction:row; flex-wrap:wrap; gap:14px; border-bottom:1px solid var(--border); padding-bottom:18px; margin-bottom:8px;}
+    .contact-grid{grid-template-columns:1fr;}
+    .roadmap-grid{grid-template-columns:1fr;}
+    .proof-strip{justify-content:flex-start;}
+  }
+  @media (max-width: 760px){
+    nav.nav-links{display:none;}
+    .hamburger{display:flex;}
+    .footer-grid{flex-direction:column;}
+  }
+  @media (max-width: 620px){
+    .feature-grid{grid-template-columns:1fr;}
+    .field-row{flex-direction:column;}
+    .cta-banner{flex-direction:column; align-items:flex-start;}
+    .hero{padding:64px 0 48px;}
+    .clip-output-grid{grid-template-columns:1fr 1fr 1fr; gap:8px;}
+    .clip-title{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <a href="#home" class="brand" data-route="home">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5h9l5 5v9H5V5Z" stroke="#eaf2ff" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 10.5 13.5 13 9 15.5v-5Z" fill="#eaf2ff"/></svg>
+      </span>
+      AutoClip
+    </a>
+
+    <nav class="nav-links" id="nav-links">
+      <a href="#home" data-route="home">Home</a>
+      <a href="#privacy" data-route="privacy">Privacy Policy</a>
+      <a href="#terms" data-route="terms">Terms of Service</a>
+      <a href="#contact" data-route="contact">Contact</a>
+    </nav>
+
+    <div class="nav-right">
+      <a href="#contact" class="btn btn-ghost btn-sm" data-route="contact">Talk to us</a>
+      <a href="#" class="btn btn-primary btn-sm" onclick="return false;">Start clipping free</a>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mobile-panel" id="mobile-panel">
+    <a href="#home" data-route="home">Home</a>
+    <a href="#privacy" data-route="privacy">Privacy Policy</a>
+    <a href="#terms" data-route="terms">Terms of Service</a>
+    <a href="#contact" data-route="contact">Contact</a>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ HOME ============ -->
+<section id="page-home" class="page">
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> AI CONTENT STUDIO · FOR CREATORS</span>
+        <h1>One long video. <span>A week of TikToks.</span></h1>
+        <p class="lede">AutoClip watches your footage, finds the moments worth posting, and turns each one into a captioned, titled, hashtagged clip — ready before you've finished your coffee.</p>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-primary" onclick="return false;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v13m0 0-4-4m4 4 4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Start clipping free
+          </a>
+          <a href="#features" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="hero-meta">
+          <span><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg> AI finds the highlights</span>
+          <span><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4V6Zm0 0 8 7 8-7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Captions, titles &amp; tags written for you</span>
+          <span class="badge-soon">TikTok auto-publish — coming soon</span>
+        </div>
+      </div>
+
+      <div class="app-window" aria-hidden="true">
+        <div class="app-titlebar">
+          <span class="tb-dot"></span><span class="tb-dot"></span><span class="tb-dot"></span>
+          <span class="tb-title">keynote_2hr_recording.mp4</span>
+          <span class="tb-right badge-live">4 clips found</span>
+        </div>
+        <div class="app-body">
+          <div class="timeline-label"><span>SOURCE · 02:14:08</span><span>SCANNED BY AI</span></div>
+          <div class="timeline-track">
+            <div class="timeline-marker" style="left:9%"><span class="marker-score">94</span></div>
+            <div class="timeline-marker alt" style="left:34%"><span class="marker-score">88</span></div>
+            <div class="timeline-marker" style="left:58%"><span class="marker-score">91</span></div>
+            <div class="timeline-marker alt" style="left:80%"><span class="marker-score">82</span></div>
+          </div>
+          <div class="clip-output-grid">
+            <div class="clip-card">
+              <div class="clip-thumb"></div>
+              <span class="clip-score">AI 94</span>
+              <div class="clip-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z"/></svg></div>
+              <div class="clip-info">
+                <p class="clip-title">"the mistake that cost us $40K"</p>
+                <div class="clip-tags"><span>#startuplessons</span><span>#founder</span></div>
+              </div>
+            </div>
+            <div class="clip-card">
+              <div class="clip-thumb"></div>
+              <span class="clip-score">AI 91</span>
+              <div class="clip-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z"/></svg></div>
+              <div class="clip-info">
+                <p class="clip-title">"why we fired our first hire"</p>
+                <div class="clip-tags"><span>#hiring</span><span>#biztok</span></div>
+              </div>
+            </div>
+            <div class="clip-card">
+              <div class="clip-thumb"></div>
+              <span class="clip-score">AI 88</span>
+              <div class="clip-play"><svg viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7L8 5Z"/></svg></div>
+              <div class="clip-info">
+                <p class="clip-title">"the 3am decision that saved us"</p>
+                <div class="clip-tags"><span>#storytime</span><span>#grind</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block tight">
+    <div class="wrap">
+      <div class="proof-strip">
+        <div class="proof-item"><span class="num"><span>12M+</span></span><span class="lbl">minutes of footage analyzed</span></div>
+        <div class="proof-item"><span class="num"><span>90s</span></span><span class="lbl">average time to first clip</span></div>
+        <div class="proof-item"><span class="num"><span>40+</span></span><span class="lbl">languages captioned</span></div>
+        <div class="proof-item"><span class="num"><span>3</span></span><span class="lbl">platforms exported for, one click</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block tight" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">FEATURES</span>
+        <h2>Everything between "recorded" and "posted."</h2>
+        <p>AutoClip handles the parts of going viral that used to take an editor all afternoon — finding the moment, cutting it, and dressing it up for the feed.</p>
+      </div>
+      <div class="feature-grid">
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.6"/></svg></div>
+            <span class="badge-live">Live</span>
+          </div>
+          <h3>AI clip selection</h3>
+          <p>AutoClip scores every minute of your footage for hooks, punchlines, and payoffs, then cuts the moments worth posting — no scrubbing required.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h3l2-7 4 14 2-9 2 5h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span class="badge-live">Live</span>
+          </div>
+          <h3>Auto captions</h3>
+          <p>Bold, animated captions timed to the word and styled to match your brand, burned in and ready to post straight out of AutoClip.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+            <span class="badge-live">Live</span>
+          </div>
+          <h3>AI-written titles</h3>
+          <p>Every clip comes with a handful of scroll-stopping title options, written in your voice from what's actually said in the clip.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3 5 21M17 3l-2 18M3 9h18M2 15h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <span class="badge-live">Live</span>
+          </div>
+          <h3>Smart hashtags</h3>
+          <p>A tuned hashtag set for every clip — mixing niche, trending, and reach tags based on what the moment is actually about.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="7" y="3" width="10" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M11 18h2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></div>
+            <span class="badge-live">Live</span>
+          </div>
+          <h3>Multi-format export</h3>
+          <p>Every clip is reframed to 9:16 automatically, ready for TikTok, Reels, and Shorts from a single source video.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-card-top">
+            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-5.2-9.5-9.3C.6 8 2.4 4.5 6 4.1c2-.2 3.5.8 4.6 2.3C11.7 4.9 13.2 3.9 15.2 4.1c3.6.4 5.4 3.9 3.5 7.6C16.2 15.8 12 21 12 21Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+            <span class="badge-soon">Coming soon</span>
+          </div>
+          <h3>Auto-publish to TikTok</h3>
+          <p>Connect your TikTok account and let AutoClip queue and post finished clips on a schedule — no export-and-upload required.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="block tight">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">HOW IT WORKS</span>
+        <h2>From raw footage to posted clip, three steps.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <span class="num">01</span>
+          <h3>Upload</h3>
+          <p>Drop in a podcast, stream VOD, or long-form video — any length. AutoClip pulls it apart the moment it lands.</p>
+        </div>
+        <div class="step">
+          <span class="num">02</span>
+          <h3>AI selects &amp; cuts</h3>
+          <p>Every moment gets a clip-worthiness score. AutoClip cuts the highest scorers to length and frames them for vertical video.</p>
+        </div>
+        <div class="step">
+          <span class="num">03</span>
+          <h3>Post-ready</h3>
+          <p>Each clip comes captioned, titled, and hashtagged. Download now — or queue it for TikTok once auto-publish goes live.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block tight">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">INSIDE AUTOCLIP</span>
+        <h2>The AI shows its work.</h2>
+        <p>Every clip comes with a confidence score and the reasoning behind it, so you're never guessing why AutoClip picked one moment over another.</p>
+      </div>
+      <div class="preview-panel">
+        <div class="app-window">
+          <div class="app-titlebar">
+            <span class="tb-dot"></span><span class="tb-dot"></span><span class="tb-dot"></span>
+            <span class="tb-title">podcast_ep114.mp4</span>
+            <span class="tb-right badge-live">Clip-worthy moment</span>
+          </div>
+          <div class="app-body">
+            <div class="video-frame">
+              <div class="caption-chip c2">this is the part that gets clipped</div>
+            </div>
+            <div class="timecode-row"><span>00:41:12.400</span><span>00:41:44.900</span></div>
+            <div class="waveform" id="waveform"></div>
+            <div class="transcript-track">
+              <div class="transcript-line"><span class="tc">41:12.4</span><span class="word">okay but here's the part nobody talks about</span></div>
+              <div class="transcript-line current"><span class="tc">41:16.9</span><span class="word">we nearly <span class="hl">shut down</span> in year two</span><span class="score-tag">hook · 0.4s in</span></div>
+              <div class="transcript-line"><span class="tc">41:22.6</span><span class="word">and this one decision turned it around</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block tight">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">ROADMAP</span>
+        <h2>What's live today, and what's next.</h2>
+      </div>
+      <div class="roadmap-grid">
+        <div class="roadmap-card now">
+          <div class="roadmap-head"><h3>Available now</h3><span class="badge-live">Live</span></div>
+          <ul class="roadmap-list now">
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>AI clip selection</strong> — automatic highlight detection across any source length.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>Auto captions</strong> — word-accurate, styled, burned in.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>AI titles &amp; hashtags</strong> — generated per clip, editable before export.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>9:16 export</strong> — ready for TikTok, Reels, and Shorts.</span></li>
+          </ul>
+        </div>
+        <div class="roadmap-card soon">
+          <div class="roadmap-head"><h3>Coming soon</h3><span class="badge-soon">In development</span></div>
+          <ul class="roadmap-list soon">
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg></span><span><strong>Direct TikTok publishing</strong> — connect your account and post without leaving AutoClip.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg></span><span><strong>Scheduling &amp; queueing</strong> — line up a week of clips in one sitting.</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/></svg></span><span><strong>Performance analytics</strong> — see which AI picks actually landed, and let the model learn from it.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="cta-banner">
+        <div>
+          <h2>Your next upload is a week of content.</h2>
+          <p>Free to start, no credit card required. Your first clips are ready in minutes.</p>
+        </div>
+        <div class="hero-actions" style="margin-top:0;">
+          <a href="#" class="btn btn-primary" onclick="return false;">Start clipping free</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section id="page-privacy" class="page">
+  <div class="wrap legal-page">
+    <div class="legal-header">
+      <span class="kicker">LEGAL</span>
+      <h1>Privacy Policy</h1>
+      <p class="updated">Last updated: July 12, 2026</p>
+    </div>
+    <div class="legal-body">
+      <nav class="legal-toc">
+        <a href="#p-collect">Information we collect</a>
+        <a href="#p-process">How AI processing works</a>
+        <a href="#p-use">How we use information</a>
+        <a href="#p-share">Third-party services</a>
+        <a href="#p-retention">Data retention</a>
+        <a href="#p-rights">Your rights</a>
+        <a href="#p-children">Children's privacy</a>
+        <a href="#p-changes">Changes to this policy</a>
+        <a href="#p-contact">Contact us</a>
+      </nav>
+      <div class="legal-content">
+        <h2 id="p-collect">Information we collect</h2>
+        <p>To turn your footage into clips, AutoClip needs to collect a bit more than a typical website. We collect:</p>
+        <ul>
+          <li><strong>Account information</strong> — your name, email address, and password (or login provider) when you create an account.</li>
+          <li><strong>Uploaded content</strong> — the video files you upload, along with the clips, captions, titles, and hashtags AutoClip generates from them.</li>
+          <li><strong>Connected accounts</strong> — when TikTok auto-publish becomes available, the access tokens needed to post on your behalf, granted only after you explicitly connect your account.</li>
+          <li><strong>Usage data</strong> — basic product analytics, such as which features you use, to help us improve AutoClip.</li>
+        </ul>
+
+        <h2 id="p-process">How AI processing works</h2>
+        <p>When you upload a video, it's processed on our secure servers so our AI models can analyze the audio and visuals, identify clip-worthy moments, and generate captions, titles, and hashtags. This processing is automated; a person does not manually review your footage unless you contact support about a specific file.</p>
+        <p>We do not use your uploaded video content to train models shared across other customers without your consent, and you can request that a file be excluded from any model-improvement process at any time.</p>
+
+        <h2 id="p-use">How we use information</h2>
+        <p>We use the information above to:</p>
+        <ul>
+          <li>Generate your clips, captions, titles, and hashtags.</li>
+          <li>Operate, maintain, and improve AutoClip's AI selection and captioning quality.</li>
+          <li>Once available, publish or schedule clips to TikTok at your direction.</li>
+          <li>Provide customer support and respond to your requests.</li>
+          <li>Send product updates, which you can opt out of at any time.</li>
+        </ul>
+
+        <h2 id="p-share">Third-party services</h2>
+        <p>We work with a small number of infrastructure providers — cloud hosting and storage, AI model providers, a payment processor, and (once live) the TikTok API for publishing. Each receives only the data required to perform its function, and none are permitted to use your content for their own purposes.</p>
+        <p>We do not sell your personal information or your video content to anyone.</p>
+
+        <h2 id="p-retention">Data retention</h2>
+        <p>Uploaded source videos are retained for as long as needed to generate your clips, plus a short buffer for re-processing, and are then automatically deleted unless you choose to keep them in your library. Generated clips remain in your account until you delete them or close your account. You can delete any file manually at any time.</p>
+
+        <h2 id="p-rights">Your rights</h2>
+        <p>Depending on where you live, you may have the right to access, correct, export, or delete the personal data and content we hold about you, and to object to or restrict certain processing. To exercise any of these rights, reach out through our <a href="#contact" class="inline-link" data-route="contact">contact page</a>.</p>
+
+        <h2 id="p-children">Children's privacy</h2>
+        <p>AutoClip is not directed at children under 13, and we do not knowingly collect personal information from them. If you believe a child has provided us with personal data, contact us and we'll remove it.</p>
+
+        <h2 id="p-changes">Changes to this policy</h2>
+        <p>We may update this policy as AutoClip evolves — particularly as features like TikTok auto-publish move from development to launch. We'll notify registered users of material changes by email and update the date at the top of this page.</p>
+
+        <h2 id="p-contact">Contact us</h2>
+        <p>Questions about this policy can be sent through our <a href="#contact" class="inline-link" data-route="contact">contact page</a> or to <span class="mono">privacy@autoclip.app</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TERMS ============ -->
+<section id="page-terms" class="page">
+  <div class="wrap legal-page">
+    <div class="legal-header">
+      <span class="kicker">LEGAL</span>
+      <h1>Terms of Service</h1>
+      <p class="updated">Last updated: July 12, 2026</p>
+    </div>
+    <div class="legal-body">
+      <nav class="legal-toc">
+        <a href="#t-license">Using AutoClip</a>
+        <a href="#t-acceptable">Acceptable use</a>
+        <a href="#t-content">Your content</a>
+        <a href="#t-tiktok">TikTok integration</a>
+        <a href="#t-ip">Intellectual property</a>
+        <a href="#t-payment">Subscriptions and billing</a>
+        <a href="#t-warranty">Disclaimer of warranty</a>
+        <a href="#t-liability">Limitation of liability</a>
+        <a href="#t-termination">Termination</a>
+        <a href="#t-law">Governing law</a>
+        <a href="#t-contact">Contact us</a>
+      </nav>
+      <div class="legal-content">
+        <h2 id="t-license">Using AutoClip</h2>
+        <p>Subject to these terms, we grant you a personal, non-exclusive, non-transferable right to access and use AutoClip to upload video, generate clips, and export or publish the results, for as long as your account remains in good standing.</p>
+
+        <h2 id="t-acceptable">Acceptable use</h2>
+        <p>You agree not to upload content you don't have the rights to process, not to use AutoClip to generate misleading or harmful content, and not to attempt to reverse engineer, scrape, or circumvent usage limits on the service.</p>
+
+        <h2 id="t-content">Your content</h2>
+        <p>You retain full ownership of the video you upload and the clips AutoClip generates from it. You grant us a limited license to store and process your content solely to provide the service — including running the AI models that select, caption, and title your clips — and, once you enable it, to publish clips to your connected TikTok account.</p>
+
+        <h2 id="t-tiktok">TikTok integration</h2>
+        <p>Direct publishing to TikTok is in development. Once available, connecting your TikTok account will be optional and require your explicit authorization. Any content published through that connection remains subject to TikTok's own terms of service and community guidelines, which are outside our control.</p>
+
+        <h2 id="t-ip">Intellectual property</h2>
+        <p>AutoClip's software, models, and interface are owned by us or our licensors and protected by intellectual property law. Nothing in these terms transfers ownership of that technology to you.</p>
+
+        <h2 id="t-payment">Subscriptions and billing</h2>
+        <p>Paid plans are billed through our payment processor at the price shown at checkout. Subscriptions renew automatically unless cancelled before the renewal date. Usage-based limits (such as minutes processed per month) are described on our pricing page.</p>
+
+        <h2 id="t-warranty">Disclaimer of warranty</h2>
+        <p>AutoClip is provided "as is." AI-selected clips, captions, titles, and hashtags may occasionally be inaccurate, mistimed, or not to your taste — the AI is making a judgment call, not a guarantee. We disclaim all warranties, express or implied, to the extent permitted by law.</p>
+
+        <h2 id="t-liability">Limitation of liability</h2>
+        <p>To the maximum extent permitted by law, we are not liable for indirect, incidental, or consequential damages arising from your use of AutoClip, including clips that underperform or content published to a connected platform. Our total liability for any claim is limited to the amount you paid us in the twelve months prior to the claim.</p>
+
+        <h2 id="t-termination">Termination</h2>
+        <p>We may suspend or terminate your account if you violate these terms. You may close your account and delete your content at any time. Sections that by their nature should survive termination — including ownership, warranty disclaimers, and liability limits — will continue to apply.</p>
+
+        <h2 id="t-law">Governing law</h2>
+        <p>These terms are governed by the laws of the jurisdiction in which our company is registered, without regard to conflict-of-law principles, unless local consumer protection law requires otherwise.</p>
+
+        <h2 id="t-contact">Contact us</h2>
+        <p>Questions about these terms can be sent through our <a href="#contact" class="inline-link" data-route="contact">contact page</a> or to <span class="mono">legal@autoclip.app</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONTACT ============ -->
+<section id="page-contact" class="page">
+  <div class="wrap legal-page">
+    <div class="legal-header">
+      <span class="kicker">GET IN TOUCH</span>
+      <h1>Contact us</h1>
+      <p class="updated" style="font-family:'Inter',sans-serif; color:var(--text-muted); font-size:15px;">Questions about your account, a clip that didn't land right, or early access to TikTok auto-publish — send it over.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info-card">
+        <h3>Ways to reach us</h3>
+        <p style="margin-bottom:6px;">We're a small team; expect a reply within one to two business days.</p>
+
+        <div class="contact-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 6h16v12H4V6Zm0 0 8 7 8-7" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div>
+            <h4>General support</h4>
+            <p><a href="mailto:support@autoclip.app">support@autoclip.app</a></p>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v4M12 17v4M3 12h4M17 12h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.6"/></svg></div>
+          <div>
+            <h4>Billing &amp; plans</h4>
+            <p><a href="mailto:billing@autoclip.app">billing@autoclip.app</a></p>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-5.2-9.5-9.3C.6 8 2.4 4.5 6 4.1c2-.2 3.5.8 4.6 2.3C11.7 4.9 13.2 3.9 15.2 4.1c3.6.4 5.4 3.9 3.5 7.6C16.2 15.8 12 21 12 21Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div>
+            <h4>Early access</h4>
+            <p>Want in on TikTok auto-publish before launch? Mention it in your message.</p>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none"><path d="M9 12h6M9 16h4M7 3h10l4 4v14H7V3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <div>
+            <h4>Press &amp; partnerships</h4>
+            <p><a href="mailto:press@autoclip.app">press@autoclip.app</a></p>
+          </div>
+        </div>
+      </div>
+
+      <form id="contact-form" novalidate>
+        <div class="field-row">
+          <div class="field">
+            <label for="cf-name">Name</label>
+            <input type="text" id="cf-name" name="name" placeholder="Jamie Rivera" required />
+          </div>
+          <div class="field">
+            <label for="cf-email">Email</label>
+            <input type="email" id="cf-email" name="email" placeholder="jamie@example.com" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="cf-topic">Topic</label>
+          <select id="cf-topic" name="topic">
+            <option>General question</option>
+            <option>Bug report</option>
+            <option>Feature request</option>
+            <option>TikTok auto-publish early access</option>
+            <option>Billing &amp; plans</option>
+            <option>Press &amp; partnerships</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" name="message" rows="5" placeholder="Tell us what's going on…" required></textarea>
+        </div>
+        <div id="form-status"></div>
+        <div class="hero-actions" style="margin-top:0;">
+          <button type="submit" class="btn btn-primary">Send message</button>
+        </div>
+        <p class="form-note">Submitting opens a pre-filled email in your default mail app addressed to our support team — nothing is sent from this page directly.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <span class="brand-mark">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5h9l5 5v9H5V5Z" stroke="#eaf2ff" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 10.5 13.5 13 9 15.5v-5Z" fill="#eaf2ff"/></svg>
+          </span>
+          AutoClip
+        </div>
+        <p>The AI Content Studio that turns long-form video into TikTok-ready clips — captioned, titled, and tagged automatically.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#home" data-route="home">Home</a>
+          <a href="#features" data-route="home">Features</a>
+          <a href="#" onclick="return false;">Start clipping free</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#privacy" data-route="privacy">Privacy Policy</a>
+          <a href="#terms" data-route="terms">Terms of Service</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#contact" data-route="contact">Contact</a>
+          <a href="mailto:support@autoclip.app">Support</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AutoClip. All rights reserved.</span>
+      <span>Built for creators who'd rather be creating.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---------- Waveform bar generation ----------
+  function buildWaveform(id, count){
+    var el = document.getElementById(id);
+    if(!el) return;
+    var frag = document.createDocumentFragment();
+    for(var i=0;i<count;i++){
+      var bar = document.createElement('i');
+      var h1 = (0.15 + Math.random()*0.35).toFixed(2);
+      var h2 = (0.5 + Math.random()*0.5).toFixed(2);
+      bar.style.setProperty('--h1', h1);
+      bar.style.setProperty('--h2', h2);
+      bar.style.animationDelay = (Math.random()*2).toFixed(2) + 's';
+      bar.style.animationDuration = (1.8 + Math.random()*1.2).toFixed(2) + 's';
+      frag.appendChild(bar);
+    }
+    el.appendChild(frag);
+  }
+  buildWaveform('waveform', 46);
+
+  // ---------- Routing ----------
+  var routes = ['home','privacy','terms','contact'];
+  var pages = {};
+  routes.forEach(function(r){ pages[r] = document.getElementById('page-' + r); });
+
+  function setActiveLinks(route){
+    document.querySelectorAll('[data-route]').forEach(function(a){
+      if(a.getAttribute('data-route') === route){ a.classList.add('active'); }
+      else { a.classList.remove('active'); }
+    });
+  }
+
+  function showRoute(route, opts){
+    opts = opts || {};
+    if(routes.indexOf(route) === -1) route = 'home';
+    routes.forEach(function(r){
+      pages[r].classList.toggle('active', r === route);
+    });
+    setActiveLinks(route);
+    closeMobilePanel();
+    if(!opts.skipScroll){ window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'}); }
+    var titles = {
+      home: 'AutoClip — The AI Content Studio for creators',
+      privacy: 'AutoClip — Privacy Policy',
+      terms: 'AutoClip — Terms of Service',
+      contact: 'AutoClip — Contact'
+    };
+    document.title = titles[route] || titles.home;
+  }
+
+  function routeFromHash(){
+    var h = window.location.hash.replace('#','').split('?')[0];
+    return routes.indexOf(h) !== -1 ? h : 'home';
+  }
+
+  window.addEventListener('hashchange', function(){
+    showRoute(routeFromHash());
+  });
+
+  showRoute(routeFromHash(), {skipScroll:true});
+
+  // ---------- Mobile menu ----------
+  var hamburger = document.getElementById('hamburger');
+  var mobilePanel = document.getElementById('mobile-panel');
+  function closeMobilePanel(){
+    mobilePanel.classList.remove('open');
+    hamburger.setAttribute('aria-expanded','false');
+  }
+  hamburger.addEventListener('click', function(){
+    var open = mobilePanel.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  // ---------- Contact form ----------
+  var form = document.getElementById('contact-form');
+  var status = document.getElementById('form-status');
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('cf-name').value.trim();
+    var email = document.getElementById('cf-email').value.trim();
+    var topic = document.getElementById('cf-topic').value;
+    var message = document.getElementById('cf-message').value.trim();
+    var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+    if(!name || !emailOk || !message){
+      status.textContent = 'Please fill in your name, a valid email, and a message before sending.';
+      status.className = 'show err';
+      return;
+    }
+
+    var subject = encodeURIComponent('[' + topic + '] Message from ' + name);
+    var body = encodeURIComponent(message + '\n\n— ' + name + ' (' + email + ')');
+    var mailto = 'mailto:support@autoclip.app?subject=' + subject + '&body=' + body;
+
+    status.textContent = 'Opening your email client with this message pre-filled…';
+    status.className = 'show ok';
+    window.location.href = mailto;
+  });
+})();
+</script>
+
+</body>
+</html>
